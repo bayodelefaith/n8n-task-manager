@@ -1,0 +1,418 @@
+{
+  "name": "User Registration Email Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "424ca751-250c-494a-b1b6-6c7636923cb9",
+              "leftValue": "={{ $json.password }}",
+              "rightValue": "={{ $json['confirm password'] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "3107cba2-e3f6-497c-81c5-d6a6f5386e9d",
+              "leftValue": "={{ $json.password }}",
+              "rightValue": "={{ $json['confirm password'] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        128,
+        -144
+      ],
+      "id": "a88d9981-518e-4826-a37e-cce353192677",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "username",
+              "defaultValue": "={{ $('On form submission').item.json.username }}"
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "defaultValue": "={{ $('On form submission').item.json.email }}"
+            },
+            {
+              "fieldLabel": "password",
+              "fieldType": "password"
+            },
+            {
+              "fieldLabel": "confirm password",
+              "fieldType": "password"
+            }
+          ]
+        },
+        "options": {
+          "formTitle": "Password does not match",
+          "buttonLabel": "Submit"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        448,
+        96
+      ],
+      "id": "c5f89449-da6e-4700-8951-dbda1f58c855",
+      "name": "Form",
+      "webhookId": "0d1a84c2-43ab-4b2b-bf5f-48e1be50429f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpacific-danny-unslyly.ngrok-free.dev/api/users/register/",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $json.username }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "password",
+              "value": "={{ $json['confirm password'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        624,
+        -96
+      ],
+      "id": "4730a97d-5086-4d3d-8956-53210d097de9",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "chatId": "5799875979",
+        "text": "=Welcome  {{ $('If').item.json.username }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        -96
+      ],
+      "id": "063638b8-f13d-416a-bb4d-556ef864a9e2",
+      "name": "Send a text message",
+      "webhookId": "cb9cac23-0a18-4a88-8a55-e4ba1f35f2c1",
+      "credentials": {
+        "telegramApi": {
+          "id": "a9c6ilQYGv1eBbP1",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "title"
+            },
+            {
+              "fieldLabel": "description"
+            }
+          ]
+        },
+        "options": {
+          "formTitle": "Create Task"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "9fb000a0-46a1-4123-9411-a7776b17c090",
+      "name": "Form1",
+      "webhookId": "82b29012-e0ba-4901-ab18-a6d62576fc96"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpacific-danny-unslyly.ngrok-free.dev/api/token/",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "username",
+              "value": "={{ $('If').item.json.username }}"
+            },
+            {
+              "name": "password",
+              "value": "={{ $('If').item.json['confirm password'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1248,
+        -96
+      ],
+      "id": "199f02ed-3991-46b8-b8a5-d82cbd7530bb",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nonpacific-danny-unslyly.ngrok-free.dev/api/tasks/",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Authorization\": \"Bearer {{ $json.access }}\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Form1').item.json.title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Form1').item.json.description }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1520,
+        -96
+      ],
+      "id": "86ce8c3b-3060-41e9-b9c0-753fb2af716e",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -752,
+        -224
+      ],
+      "id": "e00fa825-e873-4f56-a9df-58047c4e8d30",
+      "name": "When chat message received",
+      "webhookId": "80e8d6d1-d7f4-4ef2-bd8d-84c3424fa8ed"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Username"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Password",
+              "fieldType": "password"
+            },
+            {
+              "fieldLabel": "Confirm Password",
+              "fieldType": "password"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        -112,
+        -336
+      ],
+      "id": "4849e52c-eaf7-45b2-8fa0-7cb383c008c8",
+      "name": "Form2",
+      "webhookId": "9da5310d-0624-4173-82ab-f8a051bdd919"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -544,
+        -224
+      ],
+      "id": "79c7f85d-1b94-44f0-a266-816fb57ea61b",
+      "name": "Message a model"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Form1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Form2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "b4c5ca40-fcf1-4f1d-9a54-d1613f23359d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d5d5cec0571cc3af5e929d4605024fbe82e962db60007a203087802de880f80f"
+  },
+  "id": "JMIyA-03q5qaXqKhvQoWk",
+  "tags": []
+}
