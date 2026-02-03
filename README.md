@@ -31,7 +31,7 @@ You will need to fork **two repositories**:
 2. Click **Fork**
 3. Clone your fork locally:
    ```bash
-   >>> git clone https://github.com/your-username/project-1-django-api.git
+   >>> git clone https://github.com/bayodelefaith/Task-Manager-API.git
    >>> cd project-1-django-api
 
 ### Step 2: Fork This n8n Repository
@@ -40,7 +40,7 @@ You will need to fork **two repositories**:
 2. Clone it:
 
    ```bash
-   >>> git clone https://github.com/bayodelefaith/Task-Manager-API.git
+   >>> git clone https://github.com/bayodelefaith/n8n-task-manager.git
    ```
 
 ---
